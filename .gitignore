@@ -191,6 +191,8 @@ __pycache__/
 dist/
 build/
 
+tests/*
+
 # Logs / local data
 *.log
 *.sqlite3
