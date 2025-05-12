@@ -3,7 +3,7 @@ from rate_limit import handle_rate_limit
 from config import BASE_URL
 
 
-def fetch_all_locations(per_page=100, max_pages=None, warsaw_only=True):
+def fetch_all_locations(per_page=1000, max_pages=None, warsaw_only=True):
     page = 1
     results = []
 
@@ -38,7 +38,7 @@ def fetch_all_locations(per_page=100, max_pages=None, warsaw_only=True):
     return results
 
 
-def fetch_measurements_for_sensor(sensor_id: int, per_page=100, max_pages=None):
+def fetch_measurements_for_sensor(sensor_id: int, per_page=1000, max_pages=None):
     page = 1
     results = []
 
