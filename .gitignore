@@ -191,7 +191,7 @@ __pycache__/
 dist/
 build/
 
-tests/*
+.tests/*
 
 # Logs / local data
 *.log

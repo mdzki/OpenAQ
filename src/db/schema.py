@@ -14,7 +14,7 @@ def create_tables(conn):
     )
     c.execute(
         """
-        CREATE TABLE instruments (
+        CREATE TABLE IF NOT EXISTS instruments (
             id INTEGER PRIMARY KEY,
             name TEXT
         )
@@ -22,7 +22,7 @@ def create_tables(conn):
     )
     c.execute(
         """
-        CREATE TABLE location_instruments (
+        CREATE TABLE IF NOT EXISTS location_instruments (
             location_id INTEGER,
             instrument_id INTEGER,
             PRIMARY KEY (location_id, instrument_id),
@@ -33,7 +33,7 @@ def create_tables(conn):
     )
     c.execute(
         """
-        CREATE TABLE parameters (
+        CREATE TABLE IF NOT EXISTS parameters (
             id INTEGER PRIMARY KEY,
             name TEXT,
             display_name TEXT,
@@ -43,7 +43,7 @@ def create_tables(conn):
     )
     c.execute(
         """
-        CREATE TABLE sensors (
+        CREATE TABLE IF NOT EXISTS sensors (
             id INTEGER PRIMARY KEY,
             name TEXT,
             location_id INTEGER,
@@ -67,4 +67,18 @@ def create_tables(conn):
         )
     """
     )
+    c.execute(
+        """
+        CREATE TABLE IF NOT EXISTS etl_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            step TEXT,
+            status TEXT,
+            message TEXT,
+            records_loaded INTEGER,
+            records_skipped INTEGER,
+            timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+
     conn.commit()

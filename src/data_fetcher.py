@@ -1,21 +1,14 @@
 from api_client import get_data
 from rate_limit import handle_rate_limit
-from config import BASE_URL
+from config import BASE_URL, base_coordination_params
 
 
 def fetch_all_locations(per_page=1000, max_pages=None, warsaw_only=True):
     page = 1
     results = []
 
-    # ✅ stałe współrzędne dla Warszawy
-    base_params = {
-        "limit": per_page,
-        "radius": 12000,
-        "coordinates": "52.2297700,21.0117800",
-    }
-
     while True:
-        params = base_params.copy()
+        params = base_coordination_params.copy()
         params["page"] = page
 
         data, headers = get_data("locations", params)

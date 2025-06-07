@@ -1,14 +1,17 @@
 import time
 
 
-def handle_rate_limit(headers: dict):
+def handle_rate_limit(headers: dict, attempt: int = 0):
     remaining = int(headers.get("x-ratelimit-remaining", 1))
-    reset = int(headers.get("x-ratelimit-reset", 0))
+    reset = headers.get("x-ratelimit-reset")
     now = int(time.time())
 
     if remaining == 0:
-        sleep_time = max(reset - now, 0)
-        if sleep_time > 600:
-            raise RuntimeError("Too long wait due to rate limit")
-        print(f"Sleeping {sleep_time} seconds due to rate limiting...")
+        if reset:
+            reset_ts = int(reset)
+            sleep_time = max(reset_ts - now, 1)
+        else:
+            sleep_time = min(2**attempt, 60)  # fallback: exponential backoff
+
+        print(f"[RateLimit] Sleeping for {sleep_time}s (attempt {attempt})...")
         time.sleep(sleep_time)
