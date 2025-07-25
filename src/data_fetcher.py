@@ -31,29 +31,29 @@ def fetch_all_locations(per_page=1000, max_pages=None, warsaw_only=True):
     return results
 
 
-def fetch_measurements_for_sensor(sensor_id: int, per_page=1000, max_pages=None):
+def fetch_measurements_for_sensor(sensor_id: int, per_page=500, max_pages=None):
     page = 1
-    results = []
-
     while True:
+        if max_pages and page > max_pages:
+            break
+
         params = {"page": page, "limit": per_page}
-
         url = f"{BASE_URL}/sensors/{sensor_id}/measurements"
-        data, headers = get_data(full_url=url, params=params)
-        handle_rate_limit(headers)
 
-        chunk = data.get("results", [])
-        if not chunk:
-            break
+        try:
+            data, headers = get_data(full_url=url, params=params)
+            handle_rate_limit(headers)
 
-        results.extend(chunk)
+            chunk = data.get("results", [])
+            if not chunk:
+                break
 
-        if len(chunk) < per_page:
-            break
+            yield chunk
 
-        if max_pages and page >= max_pages:
-            break
+            if len(chunk) < per_page:
+                break
 
-        page += 1
+            page += 1
 
-    return results
+        except Exception as e:
+            raise RuntimeError(f"Page {page} failed: {e}")

@@ -84,23 +84,32 @@ def fetch_and_insert_measurements(conn):
             continue
 
         print(f"📡 Fetching measurements for sensor {sensor_id}...")
+
+        measurements = []
         try:
-            raw_measurements = fetch_measurements_for_sensor(
-                sensor_id, per_page=1000, max_pages=1
-            )
+            for page_chunk in fetch_measurements_for_sensor(
+                sensor_id, per_page=1000, max_pages=1000
+            ):
+                parsed = parse_measurements(sensor_id, page_chunk)
+                measurements.extend(parsed)
+
         except RuntimeError as e:
-            print(f"⚠️  Sensor {sensor_id} failed: {e}")
+            print(f"⚠️  Partial failure for sensor {sensor_id}: {e}")
             failed_total += 1
             log_etl_step(
                 conn, step=f"sensor_{sensor_id}", status="error", message=str(e)
             )
-            continue
 
-        measurements = parse_measurements(sensor_id, raw_measurements)
-        insert_measurements(conn.cursor(), measurements)
-        conn.commit()
-        print(f"✅ Inserted {len(measurements)} measurements for sensor {sensor_id}.\n")
-        loaded_total += len(measurements)
+        if measurements:
+            insert_measurements(conn.cursor(), measurements)
+            conn.commit()
+            loaded_total += len(measurements)
+            print(
+                f"✅ Inserted {len(measurements)} measurements for sensor {sensor_id}.\n"
+            )
+        else:
+            print(f"⚠️  No measurements to insert for sensor {sensor_id}. Skipping.")
+            skipped_total += 1
 
     print(
         f"✅ Summary: {loaded_total} loaded, {skipped_total} skipped, {failed_total} failed"
