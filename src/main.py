@@ -14,8 +14,8 @@ from db.utils import (
 )
 from db.logging import log_etl_step
 
-from data_fetcher import fetch_all_locations, fetch_measurements_for_sensor
-from data_parsers import (
+from fetch_data import fetch_all_locations, fetch_measurements_for_sensor
+from parse_data import (
     parse_location,
     parse_instruments,
     parse_parameters_from_sensors,
