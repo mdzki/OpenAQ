@@ -17,3 +17,16 @@ def get_sensors_from_db(conn):
         {"id": row[0], "location_id": row[1], "parameter_id": row[2], "name": row[3]}
         for row in c.fetchall()
     ]
+
+
+def get_latest_measurement_times(conn):
+    """Get the latest start_utc for each sensor_id"""
+    c = conn.cursor()
+    c.execute(
+        """
+        SELECT sensor_id, MAX(start_utc) as latest_time 
+        FROM measurements 
+        GROUP BY sensor_id
+    """
+    )
+    return {row["sensor_id"]: row["latest_time"] for row in c.fetchall()}

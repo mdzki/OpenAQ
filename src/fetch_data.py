@@ -31,7 +31,9 @@ def fetch_all_locations(per_page=1000, max_pages=None, warsaw_only=True):
     return results
 
 
-def fetch_measurements_for_sensor(sensor_id: int, per_page=500, max_pages=None):
+def fetch_measurements_for_sensor(
+    sensor_id: int, per_page=1000, max_pages=None, Since=None
+):
     page = 1
     while True:
         if max_pages and page > max_pages:

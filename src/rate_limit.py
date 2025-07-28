@@ -15,3 +15,5 @@ def handle_rate_limit(headers: dict, attempt: int = 0):
 
         print(f"[RateLimit] Sleeping for {sleep_time}s (attempt {attempt})...")
         time.sleep(sleep_time)
+    else:
+        print(f"[RateLimit] Remaining requests: {remaining}")

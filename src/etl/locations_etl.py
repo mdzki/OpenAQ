@@ -1,5 +1,5 @@
 from api_client import get_data
-from src.parse_data import parse_locations
+from parse_data import parse_locations
 from db.insert import insert_location
 from rate_limit import handle_rate_limit
 
