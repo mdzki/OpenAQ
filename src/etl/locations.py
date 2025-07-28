@@ -89,5 +89,5 @@ def fetch_and_insert_locations(conn):
         loaded=inserted,
         skipped=0,
         failed=0,
-        expected=inserted,
+        expected=str(inserted),
     )
