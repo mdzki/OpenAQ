@@ -29,4 +29,11 @@ def get_latest_measurement_times(conn):
         GROUP BY sensor_id
     """
     )
-    return {row["sensor_id"]: row["latest_time"] for row in c.fetchall()}
+    return {row[0]: row[1] for row in c.fetchall()}
+
+
+def get_measurement_count_for_sensor(conn, sensor_id: int) -> int:
+    """Get count of measurements for a specific sensor"""
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM measurements WHERE sensor_id = ?", (sensor_id,))
+    return c.fetchone()[0]

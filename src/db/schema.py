@@ -74,9 +74,11 @@ def create_tables(conn):
             step TEXT,
             status TEXT,
             message TEXT,
-            records_loaded INTEGER,
-            records_skipped INTEGER,
-            timestamp TEXT DEFAULT CURRENT_TIMESTAMP
+            loaded INTEGER,
+            skipped INTEGER,
+            failed INTEGER,
+            expected TEXT,
+            load_date TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
     )

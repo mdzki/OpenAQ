@@ -1,4 +1,4 @@
-def parse_location(raw: dict) -> dict:
+def parse_locations(raw: dict) -> dict:
     return {
         "id": raw["id"],
         "name": raw.get("name"),
