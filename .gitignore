@@ -194,6 +194,8 @@ build/
 .tests/*
 tempCodeRunnerFile.py
 
+.data/
+
 # Logs / local data
 *.log
 *.sqlite3
