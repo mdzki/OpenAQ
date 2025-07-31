@@ -1,9 +1,19 @@
 from typing import Optional
+from config import radius, coordinates, limit
 from api_client import get_data
-from db.insert import insert_instruments, insert_locations, insert_parameters, insert_sensors
-from rate_limit import handle_rate_limit
+from db.insert import (
+    insert_instruments,
+    insert_locations,
+    insert_parameters,
+    insert_sensors,
+)
 from db.logging import log_etl_step
-from parse_data import parse_instruments, parse_locations, parse_parameters_from_sensors, parse_sensors
+from etl.parse_data import (
+    parse_instruments,
+    parse_locations,
+    parse_parameters_from_sensors,
+    parse_sensors,
+)
 
 
 def process_locations(conn, params):
@@ -11,7 +21,6 @@ def process_locations(conn, params):
     while True:
         params["page"] = page
         data, headers = get_data("locations", params)
-        handle_rate_limit(headers)
 
         locations = parse_locations(data)
         if not locations:
@@ -26,25 +35,23 @@ def process_locations(conn, params):
         page += 1
 
 
-def fetch_all_locations(
-    per_page: int = 100, max_pages: Optional[int] = None
-) -> list[dict]:
+def fetch_all_locations(max_pages: Optional[int] = None) -> list[dict]:
     """Fetch all locations with pagination"""
     locations = []
     page = 1
 
     while True:
         params = {
-            "limit": per_page,
+            "limit": limit,
             "page": page,
-            "radius": 12000,
-            "coordinates": "52.2297700,21.0117800",
+            "radius": radius,
+            "coordinates": coordinates,
         }
 
         data, _ = get_data("locations", params)
         locations.extend(data["results"])
 
-        if len(data["results"]) < per_page or (max_pages and page >= max_pages):
+        if len(data["results"]) < limit or (max_pages and page >= max_pages):
             break
 
         page += 1
@@ -54,7 +61,7 @@ def fetch_all_locations(
 
 def fetch_and_insert_locations(conn):
     print("📍 Fetching locations from API...")
-    raw_locations = fetch_all_locations(per_page=100, max_pages=None)
+    raw_locations = fetch_all_locations(max_pages=None)
     parsed_locations = [parse_locations(loc) for loc in raw_locations]
     insert_locations(conn.cursor(), parsed_locations)
     inserted = len(parsed_locations)

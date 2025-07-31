@@ -1,5 +1,6 @@
 # etl/fetch_data.py
 from datetime import datetime, timezone
+from config import limit
 import re
 from typing import Iterator, Tuple, Optional
 from api_client import get_data
@@ -18,7 +19,7 @@ def parse_found_count(found: str) -> int:
 
 
 def fetch_measurements_for_sensor(
-    sensor_id: int, datetime_from: Optional[datetime] = None, per_page: int = 1000
+    sensor_id: int, datetime_from: Optional[datetime] = None, per_page: int = limit
 ) -> Iterator[tuple[list[dict], int]]:
     """Generator that yields (measurements_page, total_count)"""
     page = 1

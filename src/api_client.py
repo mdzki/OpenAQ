@@ -1,8 +1,26 @@
+import time
 import requests
 from requests.structures import CaseInsensitiveDict
 from config import BASE_URL, API_KEY
+from typing import Mapping
 
 HEADERS = {"X-API-Key": API_KEY}
+
+
+def handle_rate_limit(headers: Mapping[str, str]):
+    remaining = int(headers.get("X-Ratelimit-Remaining", 1))
+    reset = headers.get("X-Ratelimit-Reset")
+    now = int(time.time())
+
+    if remaining == 0:
+        if reset:
+            reset_ts = int(reset)
+            sleep_time = max(reset_ts - now, 1)
+        else:
+            sleep_time = min(remaining, 60)
+
+        print(f"[RateLimit] Sleeping for {sleep_time}s. Reset in {reset} seconds...")
+        time.sleep(sleep_time)
 
 
 def get_data(
@@ -13,8 +31,9 @@ def get_data(
 
     response = requests.get(url, headers=HEADERS, params=params)
 
-    if response.status_code != 200:
+    handle_rate_limit(response.headers)
+
+    if response.status_code not in [200, 429]:
         raise RuntimeError(f"API error {response.status_code}: {response.text}")
 
     return response.json(), dict(response.headers)
-

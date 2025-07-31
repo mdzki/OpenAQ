@@ -191,10 +191,12 @@ __pycache__/
 dist/
 build/
 
-.tests/*
+tests/*
 tempCodeRunnerFile.py
 
-.data/
+src/.tests/*
+
+data/
 
 # Logs / local data
 *.log
@@ -204,3 +206,4 @@ tempCodeRunnerFile.py
 # Environment variables
 .env
 >>>>>>> 77aea5b (Init repo)
+

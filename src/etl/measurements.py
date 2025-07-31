@@ -1,5 +1,5 @@
 from datetime import datetime, timezone, timedelta
-from typing import Optional, Tuple
+from typing import Optional
 from db.connection import get_connection
 from db.utils import (
     get_latest_measurement_times,
@@ -9,7 +9,7 @@ from db.utils import (
 from db.insert import insert_measurements
 from db.logging import log_etl_step
 from etl.fetch_data import fetch_measurements_for_sensor
-from parse_data import parse_measurements
+from etl.parse_data import parse_measurements
 
 
 def format_openaq_datetime(dt: Optional[datetime]) -> Optional[str]:
@@ -23,7 +23,7 @@ def format_openaq_datetime(dt: Optional[datetime]) -> Optional[str]:
 
 def process_sensor_measurements(
     conn, sensor: dict, datetime_from: Optional[datetime] = None
-) -> Tuple[int, bool]:
+) -> tuple[int, bool]:
     """
     Process all measurements for a single sensor
     Returns tuple of (loaded_count, is_complete)
@@ -74,7 +74,7 @@ def process_sensor_measurements(
 
 def fetch_and_insert_measurements(
     conn, incremental: bool = True, backfill_days: int = 7
-) -> Tuple[int, int, int]:
+) -> tuple[int, int, int]:
     """
     Main measurement loading function
     Returns tuple of (loaded_count, skipped_count, failed_count)
