@@ -78,6 +78,7 @@ def create_tables(conn):
             loaded INTEGER,
             failed INTEGER,
             expected TEXT,
+            duration_seconds NUMBER,
             load_date TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """

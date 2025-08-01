@@ -1,4 +1,5 @@
 from datetime import datetime, timezone, timedelta
+import time
 from typing import Optional
 from db.connection import get_connection
 from db.utils import (
@@ -19,6 +20,7 @@ def process_sensor_measurements(
     Process all measurements for a single sensor
     Returns tuple of (loaded_count, is_complete)
     """
+    start_time = time.time()
     loaded = 0
     is_complete = True
     sensor_id = sensor["id"]
@@ -48,6 +50,7 @@ def process_sensor_measurements(
 
     except Exception as e:
         print(f"⚠️  Error processing sensor {sensor_id}: {e}")
+
         log_etl_step(
             conn,
             step=f"sensor_{sensor_id}",
@@ -56,6 +59,7 @@ def process_sensor_measurements(
             loaded=loaded,
             expected="Unknown (>" + str(loaded) if loaded >= 1000 else str(loaded),
             failed=1,
+            duration_seconds=int((time.time() - start_time)),
         )
         raise
 
@@ -69,6 +73,7 @@ def fetch_and_insert_measurements(
     Main measurement loading function
     Returns tuple of (loaded_count, failed_count)
     """
+    start_time = time.time()
     print("📊 Starting measurements ETL...")
     latest_times = get_latest_measurement_times(conn)
     sensors = get_sensors_from_db(conn)
@@ -138,5 +143,6 @@ def fetch_and_insert_measurements(
         loaded=loaded_total,
         failed=failed_total,
         expected=str(loaded_total),
+        duration_seconds=int(time.time() - start_time),
     )
     return loaded_total, failed_total

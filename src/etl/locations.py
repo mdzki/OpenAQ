@@ -1,3 +1,4 @@
+import time
 from typing import Optional
 from config import radius, coordinates, limit
 from api_client import get_data
@@ -60,6 +61,7 @@ def fetch_all_locations(max_pages: Optional[int] = None) -> list[dict]:
 
 
 def fetch_and_insert_locations(conn):
+    start_time = time.time()
     print("📍 Fetching locations from API...")
     raw_locations = fetch_all_locations(max_pages=None)
     parsed_locations = [parse_locations(loc) for loc in raw_locations]
@@ -96,4 +98,5 @@ def fetch_and_insert_locations(conn):
         loaded=inserted,
         failed=0,
         expected=str(inserted),
+        duration_seconds=int(time.time() - start_time)
     )

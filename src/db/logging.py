@@ -7,6 +7,7 @@ def log_etl_step(
     loaded: int,
     failed: int,
     expected: str,
+    duration_seconds: int,
 ):
     """Enhanced logging with more detailed tracking"""
     c = conn.cursor()
@@ -19,9 +20,10 @@ def log_etl_step(
             loaded, 
             failed,
             expected, 
+            duration_seconds,
             load_date
-        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
         """,
-        (step, status, message, loaded, failed, expected),
+        (step, status, message, loaded, failed, expected, duration_seconds),
     )
     conn.commit()
