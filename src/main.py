@@ -19,10 +19,10 @@ def run_etl(incremental: bool = True, backfill_days: int = 7):
             print("📍 Locations exist - skipping fetch")
 
         # Measurement handling
-        loaded, skipped, failed = fetch_and_insert_measurements(
+        loaded, failed = fetch_and_insert_measurements(
             conn, incremental=incremental, backfill_days=backfill_days
         )
-        print(f"ETL Complete. Loaded: {loaded}, Skipped: {skipped}, Failed: {failed}")
+        print(f"ETL Complete. Loaded: {loaded}, Failed: {failed}")
 
     finally:
         conn.close()

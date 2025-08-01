@@ -54,7 +54,7 @@ def insert_measurements(c, measurements: list[dict]):
     for m in measurements:
         c.execute(
             """
-            INSERT INTO measurements (sensor_id, value, start_utc, end_utc, interval, label)
+            INSERT OR IGNORE INTO measurements (sensor_id, value, start_utc, end_utc, interval, label)
             VALUES (?, ?, ?, ?, ?, ?)
         """,
             (

@@ -12,15 +12,6 @@ from etl.fetch_data import fetch_measurements_for_sensor
 from etl.parse_data import parse_measurements
 
 
-def format_openaq_datetime(dt: Optional[datetime]) -> Optional[str]:
-    """Format datetime for OpenAQ API (YYYY-MM-DDTHH:MM:SSZ)"""
-    if dt is None:
-        return None
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
-    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
 def process_sensor_measurements(
     conn, sensor: dict, datetime_from: Optional[datetime] = None
 ) -> tuple[int, bool]:
@@ -44,7 +35,7 @@ def process_sensor_measurements(
             parsed = parse_measurements(sensor_id, measurements)
             insert_measurements(conn.cursor(), parsed)
             conn.commit()
-            loaded += len(parsed)
+            loaded = get_measurement_count_for_sensor(conn, sensor_id) - current_count
 
             # Determine completeness:
             # - If we got a full page (1000), assume there might be more data
@@ -64,7 +55,6 @@ def process_sensor_measurements(
             message=str(e),
             loaded=loaded,
             expected="Unknown (>" + str(loaded) if loaded >= 1000 else str(loaded),
-            skipped=0,
             failed=1,
         )
         raise
@@ -74,17 +64,16 @@ def process_sensor_measurements(
 
 def fetch_and_insert_measurements(
     conn, incremental: bool = True, backfill_days: int = 7
-) -> tuple[int, int, int]:
+) -> tuple[int, int]:
     """
     Main measurement loading function
-    Returns tuple of (loaded_count, skipped_count, failed_count)
+    Returns tuple of (loaded_count, failed_count)
     """
     print("📊 Starting measurements ETL...")
     latest_times = get_latest_measurement_times(conn)
     sensors = get_sensors_from_db(conn)
 
     loaded_total = 0
-    skipped_total = 0
     failed_total = 0
 
     for sensor in sensors:
@@ -112,13 +101,13 @@ def fetch_and_insert_measurements(
         try:
             if incremental and not datetime_from:
                 print(f"⏭️  Skipping sensor {sensor_id} (no new data)")
-                skipped_total += 1
                 continue
 
             print(f"📡 Processing sensor {sensor_id}...")
             loaded, is_complete = process_sensor_measurements(
                 conn, sensor, datetime_from
             )
+
             loaded_total += loaded
 
             # Count as skipped if we didn't get all data (got a full page)
@@ -126,7 +115,6 @@ def fetch_and_insert_measurements(
                 print(
                     f"⚠️  Possibly incomplete data for sensor {sensor_id} (got {loaded} measurements)"
                 )
-                skipped_total += 1
 
         except Exception as e:
             print(f"⚠️  Critical error processing sensor {sensor_id}: {e}")
@@ -139,7 +127,6 @@ def fetch_and_insert_measurements(
         f"""
 ✅ ETL Complete:
    - Loaded: {loaded_total} measurements
-   - Possibly incomplete: {skipped_total} sensors
    - Failed: {failed_total} sensors
 """
     )
@@ -149,8 +136,7 @@ def fetch_and_insert_measurements(
         status="ok",
         message="Completed measurements ETL",
         loaded=loaded_total,
-        skipped=skipped_total,
         failed=failed_total,
-        expected=str(loaded_total + skipped_total),
+        expected=str(loaded_total),
     )
-    return loaded_total, skipped_total, failed_total
+    return loaded_total, failed_total

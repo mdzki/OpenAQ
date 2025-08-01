@@ -94,7 +94,6 @@ def fetch_and_insert_locations(conn):
         status="ok",
         message="Fetched and inserted locations",
         loaded=inserted,
-        skipped=0,
         failed=0,
         expected=str(inserted),
     )

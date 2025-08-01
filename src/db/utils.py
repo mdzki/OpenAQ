@@ -37,3 +37,9 @@ def get_measurement_count_for_sensor(conn, sensor_id: int) -> int:
     c = conn.cursor()
     c.execute("SELECT COUNT(*) FROM measurements WHERE sensor_id = ?", (sensor_id,))
     return c.fetchone()[0]
+
+def get_measurement_count(conn) -> int:
+    """Get total count of measurements in the database"""
+    c = conn.cursor()
+    c.execute("SELECT COUNT(*) FROM measurements")
+    return c.fetchone()[0]

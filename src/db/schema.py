@@ -63,7 +63,8 @@ def create_tables(conn):
             end_utc TEXT,
             interval TEXT,
             label TEXT,
-            FOREIGN KEY (sensor_id) REFERENCES sensors(id)
+            FOREIGN KEY (sensor_id) REFERENCES sensors(id),
+            UNIQUE (sensor_id, start_utc, end_utc, interval)
         )
     """
     )
@@ -75,7 +76,6 @@ def create_tables(conn):
             status TEXT,
             message TEXT,
             loaded INTEGER,
-            skipped INTEGER,
             failed INTEGER,
             expected TEXT,
             load_date TEXT DEFAULT CURRENT_TIMESTAMP

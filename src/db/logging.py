@@ -5,7 +5,6 @@ def log_etl_step(
     status: str,
     message: str,
     loaded: int,
-    skipped: int,
     failed: int,
     expected: str,
 ):
@@ -18,12 +17,11 @@ def log_etl_step(
             status, 
             message, 
             loaded, 
-            skipped, 
             failed,
             expected, 
             load_date
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'))
         """,
-        (step, status, message, loaded, skipped, failed, expected),
+        (step, status, message, loaded, failed, expected),
     )
     conn.commit()
