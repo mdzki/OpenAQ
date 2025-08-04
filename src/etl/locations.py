@@ -1,7 +1,7 @@
 import time
 from typing import Optional
 from config import radius, coordinates, limit
-from api_client import get_data
+from etl.api_client import get_data
 from db.insert import (
     insert_instruments,
     insert_locations,

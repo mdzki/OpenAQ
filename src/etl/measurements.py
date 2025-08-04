@@ -115,12 +115,6 @@ def fetch_and_insert_measurements(
 
             loaded_total += loaded
 
-            # Count as skipped if we didn't get all data (got a full page)
-            if not is_complete:
-                print(
-                    f"⚠️  Possibly incomplete data for sensor {sensor_id} (got {loaded} measurements)"
-                )
-
         except Exception as e:
             print(f"⚠️  Critical error processing sensor {sensor_id}: {e}")
             failed_total += 1

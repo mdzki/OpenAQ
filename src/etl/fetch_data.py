@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from config import limit
 import re
 from typing import Iterator, Tuple, Optional
-from api_client import get_data
+from etl.api_client import get_data
 
 
 def parse_found_count(found: str) -> int:
