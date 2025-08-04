@@ -9,18 +9,11 @@ HEADERS = {"X-API-Key": API_KEY}
 
 def handle_rate_limit(headers: Mapping[str, str]):
     remaining = int(headers.get("X-Ratelimit-Remaining", 1))
-    reset = headers.get("X-Ratelimit-Reset")
-    now = int(time.time())
-
+    reset = int(headers.get("X-Ratelimit-Reset", "59"))
+    print(f"[RateLimit] Remaining: {remaining}, Reset: {reset}")
     if remaining == 0:
-        if reset:
-            reset_ts = int(reset)
-            sleep_time = max(reset_ts - now, 1)
-        else:
-            sleep_time = min(remaining, 60)
-
-        print(f"[RateLimit] Sleeping for {sleep_time}s. Reset in {reset} seconds...")
-        time.sleep(sleep_time)
+        print(f"[RateLimit] Sleeping for {reset}s. Reset in {reset} seconds...")
+        time.sleep(reset)
 
 
 def get_data(

@@ -61,12 +61,19 @@ def fetch_all_locations(max_pages: Optional[int] = None) -> list[dict]:
 
 
 def fetch_and_insert_locations(conn):
+    """
+    Fetches all locations from the API, parses them, and inserts locations, instruments, parameters, and sensors into the database.
+    raw_locations = fetch_all_locations()
+    Args:
+        conn: A database connection object.
+    """
     start_time = time.time()
     print("📍 Fetching locations from API...")
     raw_locations = fetch_all_locations(max_pages=None)
-    parsed_locations = [parse_locations(loc) for loc in raw_locations]
-    insert_locations(conn.cursor(), parsed_locations)
-    inserted = len(parsed_locations)
+    parsed_location_dicts = [parse_locations(loc) for loc in raw_locations]
+    cursor = conn.cursor()
+    insert_locations(cursor, parsed_location_dicts)
+    parsed_count = len(parsed_location_dicts)
 
     instruments_total = 0
     parameters_total = 0
@@ -75,28 +82,28 @@ def fetch_and_insert_locations(conn):
     for raw in raw_locations:
         location_id = raw["id"]
         instr = parse_instruments(location_id, raw.get("instruments", []))
-        insert_instruments(conn.cursor(), instr)
+        insert_instruments(cursor, instr)
         instruments_total += len(instr)
 
         param = parse_parameters_from_sensors(raw.get("sensors", []))
-        insert_parameters(conn.cursor(), param)
+        insert_parameters(cursor, param)
         parameters_total += len(param)
 
         sens = parse_sensors(location_id, raw.get("sensors", []))
-        insert_sensors(conn.cursor(), sens)
+        insert_sensors(cursor, sens)
         sensors_total += len(sens)
 
     conn.commit()
     print(
-        f"✅ Inserted {inserted} locations, {instruments_total} instruments, {parameters_total} parameters, {sensors_total} sensors\n"
+        f"✅ Parsed {parsed_count} locations, {instruments_total} instruments, {parameters_total} parameters, {sensors_total} sensors\n"
     )
     log_etl_step(
         conn,
         step="locations",
         status="ok",
         message="Fetched and inserted locations",
-        loaded=inserted,
+        loaded=parsed_count,
         failed=0,
-        expected=str(inserted),
-        duration_seconds=int(time.time() - start_time)
+        expected=str(parsed_count),
+        duration_seconds=int(time.time() - start_time),
     )
