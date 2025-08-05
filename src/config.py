@@ -1,10 +1,7 @@
-from dotenv import load_dotenv
 import os
 
-load_dotenv()
-
 API_KEY = os.getenv("API_KEY")
-BASE_URL = os.getenv("BASE_URL", "https://api.openaq.org/v3")
+BASE_URL = os.getenv("BASE_URL")
 
 # Default parameters for Warsaw
 radius = int(os.getenv("radius", 12000))
@@ -14,4 +11,4 @@ if not API_KEY:
     raise ValueError("API_KEY must be set in the environment variables.")
 
 backfill_days = int(os.getenv("backfill_days", 7))
-incremental = os.getenv("INCREMENTAL", "False").lower() == "true"
+incremental = os.getenv("INCREMENTAL", "True").lower() == "true"

@@ -1,0 +1,8 @@
+services:
+  openaq:
+    build: .
+    volumes:
+      - ./db:/app/db  # Mount local db/ as volume inside container
+    env_file:
+      - .env
+    command: python src/main.py
